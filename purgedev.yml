@@ -1,0 +1,67 @@
+---
+- name: Delete virtual devices and their related configs
+  hosts: dhcprouter
+  gather_facts: no
+
+  vars_files:
+    - vars/vars.yml
+
+  vars_prompt:
+    - name: "devtype"
+      prompt: "What type of device would you like to deporvision? Supported types include 'asa' and 'csr'"
+      private: no
+      when: devtype == null
+
+  tasks:
+
+  - name: make list 1
+    debug: msg=""
+    with_sequence: start="{{labinfo[devtype]['start']}}" count="{{labinfo[devtype]['count']}}"
+    register: demo_list1
+
+  - set_fact:
+      router_list: "{{ demo_list1.results | map(attribute='item') | list }}"
+
+  - name: Delete DHCP reservations on router
+    with_items: "{{router_list}}"
+    ios_config:
+      lines:
+        - no ip dhcp pool {{devtype}}{{item}}
+
+  - name: Delete VM
+    with_items: "{{router_list}}"
+    delegate_to: localhost
+    vmware_guest:
+      validate_certs: False
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_pass }}"
+      esxi_hostname: "{{ esxhost }}"
+      datacenter: Datacenter
+      folder: /{{devtype}}farm
+      name: "{{devtype}}{{ item }}"
+      state: absent
+      force: yes
+
+  - set_fact:
+      ansible_connection: local
+
+  - name: Remove objects from device group
+    with_items: "{{router_list}}"
+    asa_config:
+      lines:
+        - no network-object object {{devtype}}{{item}}-nc
+        - no network-object object {{devtype}}{{item}}-ssh
+      parents: ['object-group network {{devtype}}farm']
+      provider: "{{ asacli }}"
+
+  - name: Delete ASA ssh & netconf objects
+    with_items: "{{router_list}}"
+    asa_config:
+      lines:
+        - no object network {{devtype}}{{item}}-ssh
+        - no object network {{devtype}}{{item}}-nc
+      provider: "{{ asacli }}"
+    ignore_errors: True
+
+

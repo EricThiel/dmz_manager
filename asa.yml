@@ -1,0 +1,15 @@
+- name: Apply base ASA configs
+  with_items: "{{router_list}}"
+  asa_config:
+    lines:
+      - hostname {{devtype}}{{item}}
+      - clock timezone PST -8
+      - clock summer-time PDT recurring
+      - ntp server {{labinfo['ntpip']}}
+      - aaa authorization exec LOCAL auto-enable
+      - access-list acl1 extended permit tcp any any eq 123
+      - access-list acl1 extended permit tcp any any eq 124
+      - access-list acl1 extended permit tcp any any eq 125
+      - access-list acl1 extended permit tcp any any eq 126
+    provider: "{{labinfo['provider']}}"
+    host: "{{labinfo['ipprefix']}}{{ item }}"

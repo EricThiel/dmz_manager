@@ -1,0 +1,40 @@
+#ESX Info
+vcenter_hostname: 10.10.11.11
+vcenter_user: administrator@vsphere.local
+vcenter_pass: SuperSecret
+esxhost: 10.10.11.12
+datastore: SSD1
+network: "VM Network 123"
+vmcluster: EVC-Cluster
+#notes: Test1
+dumpfacts: False
+
+labinfo:
+  ipprefix: 10.11.100.
+  ipmask: 255.255.252.0
+  dmzipprefix: 101.102.103.8
+  ntpip: 10.10.11.1
+  macprefixvm: "00:50:56:00:"
+  macprefixdhcp: "0100.5056.00"
+  provider:
+    username: cisco
+    password: Cisco123
+    authorize: yes
+    auth_pass: Cisco123
+  csr:
+    macprefix: c1
+    vmtemplate: csr_blank
+    start: 11
+    count: 4
+  asa:
+    macprefix: d1
+    vmtemplate: asa_x
+    start: 30
+    count: 2
+
+asacli:
+  host: 10.253.255.1
+  username: cisco
+  password: Cisco123
+  authorize: yes
+  auth_pass: Cisco123

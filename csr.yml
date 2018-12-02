@@ -1,0 +1,11 @@
+- name: Apply base IOS configs
+  with_items: "{{router_list}}"
+  ios_config:
+    lines:
+      - hostname {{devtype}}{{item}}
+      - clock timezone PST -8
+      - clock summer-time PDT recurring
+      - ntp server {{labinfo['ntpip']}}
+      - no ip domain lookup
+    provider: "{{labinfo['provider']}}"
+    host: "{{labinfo['ipprefix']}}{{ item }}"

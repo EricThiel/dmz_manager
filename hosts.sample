@@ -1,7 +1,7 @@
 [localhost]
 127.0.0.1 
 
-[master]
+[dhcprouter]
 10.10.10.1   # Router with DHCP scopes
 
 
